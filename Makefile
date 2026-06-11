@@ -79,6 +79,7 @@ clean:
 UTEST_DIR := $(U250_LOG_ROOT)/utest
 
 utest:
+	@test -n '$(U250_LOG_ROOT)' || { echo '>> U250_LOG_ROOT not set -- run: source env.sh   (utest writes to $$U250_LOG_ROOT/utest in scratch)'; exit 2; }
 	@test -n '$(SRC)' || { echo 'usage: make utest SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
 	@test -n '$(TB)'  || { echo 'usage: make utest SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
 	@mkdir -p $(UTEST_DIR)
@@ -90,6 +91,7 @@ utest:
 	@grep -qE 'RESULT: PASS|TEST PASSED' $(UTEST_DIR)/utest.log && echo ">> UTEST PASSED" || { echo ">> UTEST FAILED"; exit 1; }
 
 uwave:
+	@test -n '$(U250_LOG_ROOT)' || { echo '>> U250_LOG_ROOT not set -- run: source env.sh   (uwave writes to $$U250_LOG_ROOT/utest in scratch)'; exit 2; }
 	@test -n '$(SRC)' || { echo 'usage: make uwave SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
 	@test -n '$(TB)'  || { echo 'usage: make uwave SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
 	@mkdir -p $(UTEST_DIR)
