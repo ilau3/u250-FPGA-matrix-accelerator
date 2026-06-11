@@ -62,3 +62,40 @@ clean:
 	-$(MAKE) -C rtl/fifo clean
 	-$(MAKE) -C hls/add clean
 	-$(MAKE) -C hls/fifo clean
+
+# ===========================================================================
+# Isolated SV unit test -- simulate ANY module(s)+testbench in xsim.
+# No board, no Vitis, no xclbin: just xvlog -> xelab -> xsim, in seconds.
+#
+#   make utest SRC="<sv files incl. its testbench>" TB=<testbench_top_module>
+#   make uwave SRC="..." TB=...        # same, but dump a waveform (dump.vcd)
+#
+# examples:
+#   make utest SRC="rtl/add/src/hdl/krnl_vadd_rtl_adder.sv rtl/add/tb/tb_adder.sv" TB=tb_adder
+#   make utest SRC="rtl/fifo/src/sync_fifo.sv rtl/fifo/tb/tb_sync_fifo.sv"          TB=tb_sync_fifo
+# A self-checking testbench prints "RESULT: PASS"; this reports ">> UTEST PASSED".
+# ===========================================================================
+.PHONY: utest uwave
+UTEST_DIR := $(U250_LOG_ROOT)/utest
+
+utest:
+	@test -n '$(SRC)' || { echo 'usage: make utest SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
+	@test -n '$(TB)'  || { echo 'usage: make utest SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
+	@mkdir -p $(UTEST_DIR)
+	@echo ">> utest: $(TB)  (log: $(UTEST_DIR)/utest.log)"
+	cd $(UTEST_DIR) && \
+	  xvlog -sv $(abspath $(SRC)) 2>&1 | tee utest.log && \
+	  xelab $(TB) -s $(TB)_sim --timescale 1ns/1ps 2>&1 | tee -a utest.log && \
+	  xsim $(TB)_sim -runall 2>&1 | tee -a utest.log
+	@grep -qE 'RESULT: PASS|TEST PASSED' $(UTEST_DIR)/utest.log && echo ">> UTEST PASSED" || { echo ">> UTEST FAILED"; exit 1; }
+
+uwave:
+	@test -n '$(SRC)' || { echo 'usage: make uwave SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
+	@test -n '$(TB)'  || { echo 'usage: make uwave SRC="dut.sv tb.sv" TB=tb_top'; exit 2; }
+	@mkdir -p $(UTEST_DIR)
+	cd $(UTEST_DIR) && \
+	  xvlog -sv $(abspath $(SRC)) 2>&1 | tee utest.log && \
+	  xelab $(TB) -s $(TB)_sim --debug all --timescale 1ns/1ps 2>&1 | tee -a utest.log && \
+	  printf 'open_vcd\nlog_vcd /*\nrun all\nclose_vcd\nexit\n' > uwave.tcl && \
+	  xsim $(TB)_sim -tclbatch uwave.tcl 2>&1 | tee -a utest.log
+	@echo ">> waveform: $(UTEST_DIR)/dump.vcd  (open with: gtkwave $(UTEST_DIR)/dump.vcd)"

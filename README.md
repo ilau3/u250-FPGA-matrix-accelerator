@@ -98,6 +98,21 @@ make -C hls/add  csim     # C-simulation of the HLS vadd kernel       (g++)
 make -C hls/fifo csim     # C-simulation of the HLS stream FIFO       (g++)
 ```
 
+### Test one module in isolation
+
+To simulate **any** SystemVerilog module with its testbench on its own — no board,
+no Vitis, no `.xclbin` — use the generic `utest` target from the repo root. Point
+`SRC` at the source files (DUT + testbench) and `TB` at the testbench's top module:
+
+```bash
+make utest SRC="rtl/add/src/hdl/krnl_vadd_rtl_adder.sv rtl/add/tb/tb_adder.sv" TB=tb_adder
+```
+
+It runs `xvlog → xelab → xsim` in seconds and prints `>> UTEST PASSED` when the
+testbench reports `RESULT: PASS`. Use `make uwave SRC="..." TB=...` to also dump a
+waveform (`$U250_LOG_ROOT/utest/dump.vcd`). This is the fast inner loop for
+developing new RTL modules.
+
 ---
 
 ## 3. The RTL flow (SystemVerilog → hardware)
