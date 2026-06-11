@@ -1,0 +1,40 @@
+# ===== Vitis/Vivado build outputs & tool scratch (regenerable) =====
+build/
+.ipcache/
+.Xil/
+_x/
+.run/
+packaged_kernel*/
+tmp_kernel_pack*/
+xsim.dir/
+
+# bitstreams / kernel objects / debug
+*.xclbin
+*.xclbin.info
+*.xclbin.link_summary
+*.xo
+*.xo.compile_summary
+*.ltx
+*.dcp
+
+# logs / journals / waveforms
+*.log
+*.jou
+*.pb
+*.str
+*.wdb
+*.wcfg
+*.protoinst
+vivado*.backup.*
+
+# HLS project scratch
+*.autopilot/
+.autopilot/
+
+# python / notebooks
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# external reference (absolute symlink — not portable across clones)
+reference_Vitis_Accel_Examples
