@@ -23,7 +23,7 @@ export PART=xcu250-figd2104-2L-e
 
 # --- Where build logs and artifacts go -----------------------------------
 # Each example writes to  $U250_LOG_ROOT/<build_name>_(rtl|hls)
-export U250_LOG_ROOT=/scratch/aniketsadashiva/u250_logs
+export U250_LOG_ROOT=/global/home/jaeyeon/u250_logs/u250_logs
 
 echo "[env] Vitis 2024.2 + XRT ready"
 echo "[env] PLATFORM     = $PLATFORM"
